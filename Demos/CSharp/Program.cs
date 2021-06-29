@@ -36,8 +36,10 @@ namespace CSharp
          person switch
             {
                (FirstName: "Min", LastName: _) => "Hi Min",
-               (_, "Mustermann") => "Hey a Mustermann",
-               Records.Person p => $"Hello {p.FirstName}"
+               { LastName: "Mustermann" } => "Hey a Mustermann",
+               Records.Person p => $"Hello {p.FirstName}",
+               // nicht nötig - C# merkt das nicht
+               _ => $"Hello {person.FirstName}"
             };
    }
 }

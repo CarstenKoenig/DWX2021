@@ -36,8 +36,8 @@ Agenda:
 # Agenda
 
 - Funktionen
-- Datentypen / Immutability
-- funktionale Muster / Unterstützung
+- Datentypen
+- funktionale Muster
 - Zukunft
 
 # Funktionen
@@ -422,15 +422,14 @@ let patternMatch =
 </td><td>
 
 ```csharp
-string PatternMatchRecords (Person person) =>
+string PatternMatchRecords (Records.Person person) =>
    person switch
       {
-         (FirstName: "Min", LastName: _) => 
-            "Hi Min",
-         (_, "Mustermann") => 
-            "Hey a Mustermann",
-         Person p => 
-            $"Hello {p.FirstName}"
+         (FirstName: "Min", LastName: _) => "Hi Min",
+         { LastName: "Mustermann" } => "Hey a Mustermann",
+         Records.Person p => $"Hello {p.FirstName}",
+         // nicht nötig - C# merkt das nicht
+         _ => $"Hello {person.FirstName}"
       };
 ```
 
@@ -438,7 +437,6 @@ string PatternMatchRecords (Person person) =>
 
 :::notes
 
-- F# erscheint logischer (nur Teile, keine Angabe von Person)
 - Unterstütz die neuen Vergleiche etc. von C# 9
 
 :::
