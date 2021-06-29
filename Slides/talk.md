@@ -38,7 +38,8 @@ Agenda:
 - Funktionen
 - Datentypen
 - funktionale Muster
-- Zukunft
+- Ausblick
+- Fragen / Antworten
 
 # Funktionen
 
@@ -679,6 +680,7 @@ IEnumerable<tRes> Enumerable.Select<tSrc, tRes>(
 
 - Haskell und co: direktes Konzept
 - F# hat (ohne Libs) auch keine direkte Unterstützung
+- *nullable* - (?.) wie `|> Option.map` sogar nicer
 
 :::
 
@@ -732,40 +734,6 @@ enum class Maybe<T>
     Nothing
 }
 ```
-
-# Test
-
----
-
-<table>
-<tr>
-<th>Json 1</th>
-<th>Markdown</th>
-</tr>
-<tr>
-<td>
-```json
-{
-  "id": 1,
-  "username": "joe",
-  "email": "joe@example.com",
-  "order_id": "3544fc0"
-}
-```
-</td>
-<td>
-```json
-{
-  "id": 5,
-  "username": "mary",
-  "email": "mary@example.com",
-  "order_id": "f7177da"
-}
-```
-
-</td>
-</tr>
-</table>
 
 # Fragen?
 
