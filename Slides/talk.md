@@ -94,6 +94,210 @@ Console.WriteLine(Funktionen.Hallo("DWX"));
 <table><tr><td>
 
 ```fsharp
+// int -> int -> int
+let add a b = 
+  a + b
+
+let add2 a =
+  fun b -> a + b
+
+Console.WriteLine (add 3 5)
+```
+
+</td><td>
+
+```csharp
+int AddNotCurried(int a, int b)
+  => a + b;
+
+Func<int,int> AddCurried(int a)
+  => b => a + b;
+
+Console.WriteLine(Funktionen.AddCurried(3)(5));
+```
+
+</td></tr></table>
+
+:::notes
+
+- Brot & Butter - Technik
+- lasse `public static` weg
+- beachte Signatur F# (`int` default) - könnte durch verwendung von `add 5.0` geändert werden
+- kann `Func<int, Func<int,int>>` zugewiesen werden
+
+:::
+
+---
+
+## Partial Applikation
+
+<table><tr><td>
+
+```fsharp
+// add : int -> (int -> int)
+
+let add10 =
+  add 10
+
+add10 5 // = 15
+```
+
+</td><td>
+
+```csharp
+// Func<int,int> AddCurried(int a)
+
+Func<int, int> Add10
+  => AddCurried(10);
+
+Add10(5) // = 15
+```
+
+</td></tr></table>
+
+:::notes
+
+- Danke Currying ist *partial application* geschenkt
+- Beachte Definition
+
+:::
+
+---
+
+## Higher-Order
+
+<table><tr><td>
+
+```fsharp
+// ('a*'b -> 'c) -> 'a -> 'b -> 'c
+let curry f a b = f (a,b)
+
+// ('a*'b -> 'c) -> 'a -> 'b -> 'c
+let partialApply f a =
+   fun b -> f (a,b)
+
+// Beispiele
+let add'(a,b) = a+b
+
+let add10alt1 = 
+   partialApply add' 10
+
+let add10alt2 = 
+   curry add' 10
+```
+
+</td><td>
+
+```csharp
+Func<T1,Func<T2,T3>> Curry<T1,T2,T3>(Func<T1,T2,T3> f)
+   => v1 => v2 => f(v1,v2);
+
+Func<T2,T3> PartialApply<T1,T2,T3>(Func<T1,T2,T3> f, T1 v1)
+   => v2 => f(v1, v2);
+
+// Beispiele
+Func<int,int> Add10alt1
+  => PartialApply<int,int,int>(AddNotCurried, 10);
+
+Func<int,int> Add10alt2
+  => Curry<int,int,int>(AddNotCurried)(10);
+```
+
+</td></tr></table>
+
+:::notes
+
+- Higher-Order: Funktion als Rückgabe oder Argument
+- Beachte in F# ist das "das Selbe"
+- C# inferiert hier die Typ-Parameter **nicht**
+
+:::
+
+---
+
+### `Action` / `Func`
+
+<table><tr><td>
+
+```fsharp
+// string * string -> unit
+let printName (punct, name) =
+   printfn "Hallo %s%s" name punct
+
+let printNameExcl =
+   partialApply printName "!"
+```
+
+</td><td>
+
+```csharp
+void PrintName(string punct, string name)
+  => Console.WriteLine($"Hallo {name}{punct}");
+
+Action<string> PrintNameExcl(string name)
+  => FunExtensions.PartialApply<string,string,?>(PrintName, "!");
+
+// Brauchen
+Action<T2> PartialApply<T1,T2>(Action<T1,T2> f, T1 v1)
+  => v2 => f(v1, v2);
+```
+
+</td></tr></table>
+
+:::notes
+
+- beachte `?`
+- `Action<>` vs `Func<>`
+- in F# ist `unit` (~ `void`) ein Typ wie jeder andere
+- Überladung mit `Action` dann fällt `?` weg
+- Typparameter weiterhin nötig
+
+:::
+
+---
+
+## Pipe
+
+<table><tr><td>
+
+```fsharp
+// = 3 + (2 + 1) = 6
+let pipe =
+   1
+   |> add 2 
+   |> add 3
+```
+
+</td><td>
+
+```csharp
+public class IntExtensions
+{
+   public static int Add(this int a, int b)
+     => a + b;
+}
+
+int Pipe =
+  1.Add(2).Add(3);
+```
+
+</td></tr></table>
+
+:::notes
+
+- in F# läuft hier viel über partial-applikation
+- Über (Extension-)Methoden prima umsetzbar
+- Deswegen auch nicht wirklich schlimm, dass Currying/Partial-Applikation nasty ist
+
+:::
+
+---
+
+# Typen
+
+<table><tr><td>
+
+```fsharp
 ```
 
 </td><td>
@@ -103,24 +307,11 @@ Console.WriteLine(Funktionen.Hallo("DWX"));
 
 </td></tr></table>
 
----
-
-## Partial Applikation
-
----
-
-## Higher-Order
-
 :::notes
 
 - `Action<>` vs `Func<>`
 
 :::
-
----
-
-# Typen
-
 ---
 
 ## Records
