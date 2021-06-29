@@ -627,11 +627,80 @@ public abstract class Maybe<T>
 
 ---
 
-## Funktor / *Map*able
+## Funktor
+
+![](../images/Functor.png)
+
+:::notes
+
+- Idee: *liften* eine Funktion in einen Kontext
+- Typparameter in positiver Position
+- in Scala: Mappable
+
+:::
+
+---
+
+### Funktor (FP)
+
+`C = D` = alle Typen
+
+`map : ('a -> 'b) -> F<'a> -> F<'b>`
+
+:::notes
+
+- Endo-Funktor
+
+:::
+
+---
+
+#### *F#*
+
+```fsharp
+
+Seq.map : ('a -> 'b) -> 'a seq -> 'b seq
+List.map : ('a -> 'b) -> 'a list -> 'b list
+Array.map : ('a -> 'b) -> 'a array -> 'b array
+Option.map : ('a -> 'b) -> 'a option -> 'b option
+Result.map : ('a -> 'b) -> Result<'a,'err> -> Result<'b,'err>
+
+```
+
+#### *C#*
+
+```csharp
+IEnumerable<tRes> Enumerable.Select<tSrc, tRes>(
+   this IEnumerable<tSrc> source, 
+   Func<tSrc, tRes> selector)
+```
+
+:::notes
+
+- Haskell und co: direktes Konzept
+- F# hat (ohne Libs) auch keine direkte Unterstützung
+
+:::
 
 ---
 
 ## "Monaden"
+
+<table><tr><td>
+
+```fsharp
+```
+
+</td><td>
+
+```csharp
+```
+
+</td></tr></table>
+
+:::notes
+
+:::
 
 ---
 
