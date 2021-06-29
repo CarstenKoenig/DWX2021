@@ -686,29 +686,114 @@ IEnumerable<tRes> Enumerable.Select<tSrc, tRes>(
 
 ---
 
-## "Monaden"
-
-<table><tr><td>
+## M-Wort
 
 ```fsharp
+
+pure : 'a -> M<'a>
+bind : M<'a> -> ('a -> M<'b>) -> M<'b>
+
 ```
-
-</td><td>
-
-```csharp
-```
-
-</td></tr></table>
 
 :::notes
+
+- bringt Wert in einen Kontext
+- verallgemeinertes Pipeing
+- erlaubt Entscheidungen
+- viele Funktoren sind Monaden
+- nicht komposierbar
 
 :::
 
 ---
 
-## Libs
+### F# Computational Expressions
+
+Beispiel:
+
+```fsharp
+let tryCalcSqrt txt =
+   maybe {
+      let! x = tryParse txt
+      let! sqrt = saveSqrt x
+      return sqrt
+   }
+
+tryCalcSqrt "36" // = Just 6.0
+tryCalcSqrt "xx" // = Nothing
+
+let tryParse (txt : string) =
+   match Double.TryParse txt with
+   | (true, n) -> Just n
+   | _ -> Nothing
+
+let saveSqrt x =
+   if x < 0.0 then Nothing else Just (sqrt x)
+```
 
 ---
+
+#### Implementation
+
+```fsharp
+type MaybeBuilder =
+   member __.Bind(opt, binder) =
+      match opt with
+      | Just value -> binder value
+      | Nothing -> Nothing
+   member __.Return(value) = Just value
+
+let maybe = MaybeBuilder()
+```
+
+---
+
+### C# - Linq
+
+```csharp
+Maybe<double> TryCalcSqrt(string txt)
+   => from x in TryParse(txt)
+      from sqrt in SaveSqrt(x)
+      select sqrt;
+
+
+Maybe<double> TryParse(string txt)
+   => Int32.TryParse(txt, out var n)
+   ? Maybe<double>.Just(n)
+   : Maybe<double>.Nothing;
+
+Maybe<double> SaveSqrt(double x)
+   => x < 0
+      ? Maybe<double>.Nothing
+      : Maybe<double>.Just(Math.Sqrt(x));
+```
+
+---
+
+#### Implementation
+
+```csharp
+static class MaybeExtensions
+{
+   static Maybe<B> SelectMany<A, B>(
+      this Maybe<A> maybe, 
+      Func<A, Maybe<B>> f )
+      => maybe.Match(() => Maybe<B>.Nothing, f );
+
+   static Maybe<V> SelectMany<T, U, V>(
+      this Maybe<T> m, 
+      Func<T, Maybe<U>> k, 
+      Func<T, U, V> s )
+      => m.SelectMany(
+         x => k(x).SelectMany(
+            y => Maybe<V>.Just(s(x, y))));
+}
+```
+
+## Libs
+
+- F#: [F#+](https://github.com/fsprojects/FSharpPlus/)
+- C#: [Language-Ext](https://github.com/louthy/language-ext)
 
 # Zukunft
 

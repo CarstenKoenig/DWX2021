@@ -30,16 +30,34 @@ namespace CSharp
          Console.WriteLine(nothing.WithDefault(0));
          Console.WriteLine(just42.WithDefault2(0));
 
+         Console.WriteLine(TryCalcSqrt("36"));
+         Console.WriteLine(TryCalcSqrt("-36"));
+         Console.WriteLine(TryCalcSqrt("xx"));
       }
 
-      static string PatternMatchRecords (Records.Person person) =>
+      static string PatternMatchRecords(Records.Person person) =>
          person switch
-            {
-               (FirstName: "Min", LastName: _) => "Hi Min",
-               { LastName: "Mustermann" } => "Hey a Mustermann",
-               Records.Person p => $"Hello {p.FirstName}",
-               // nicht nötig - C# merkt das nicht
-               _ => $"Hello {person.FirstName}"
-            };
+         {
+            (FirstName: "Min", LastName: _) => "Hi Min",
+            { LastName: "Mustermann" } => "Hey a Mustermann",
+            Records.Person p => $"Hello {p.FirstName}",
+            // nicht nötig - C# merkt das nicht
+            _ => $"Hello {person.FirstName}"
+         };
+
+      static Maybe<double> TryCalcSqrt(string txt)
+         => from x in TryParse(txt)
+            from sqrt in SaveSqrt(x)
+            select sqrt;
+
+      static Maybe<double> TryParse(string txt)
+         => Int32.TryParse(txt, out var n)
+         ? Maybe<double>.Just(n)
+         : Maybe<double>.Nothing;
+
+      static Maybe<double> SaveSqrt(double x)
+         => x < 0
+            ? Maybe<double>.Nothing
+            : Maybe<double>.Just(Math.Sqrt(x));
    }
 }

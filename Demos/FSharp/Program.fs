@@ -15,4 +15,8 @@ let main argv =
 
     Console.WriteLine(Records.patternMatch(Records.max))
     Console.WriteLine(Records.patternMatch(Records.min))
+
+    Console.WriteLine(UnionTypes.Maybe.tryCalcSqrt "36")
+    Console.WriteLine(UnionTypes.Maybe.tryCalcSqrt "-36")
+    Console.WriteLine(UnionTypes.Maybe.tryCalcSqrt "xx")
     0 // return an integer exit code
