@@ -445,39 +445,76 @@ string PatternMatchRecords (Person person) =>
 
 ---
 
-## Tupel
-
-<table><tr><td>
-
-```fsharp
-```
-
-</td><td>
-
-```csharp
-```
-
-</td></tr></table>
-
-:::notes
-
-:::
-
----
-
 ## Union Types
 
-<table><tr><td>
+---
+
+### in *F#*
 
 ```fsharp
+type Maybe<'a> =
+   | Nothing
+   | Just of 'a
+
+// Beispiele
+
+let example1 : Maybe<int> = Nothing
+
+let example2 = Just 42 
 ```
 
-</td><td>
+:::notes
+
+- neuer Typ `Maybe`
+- generisch
+- zwei *Datenkonstruktoren* `Nothing` / `Just`
+- Equality, Immutable, ...
+
+:::
+
+---
+
+### Pattern-Matching
+
+```fsharp
+module Maybe =
+
+   let withDefault a =
+      function
+      | Nothing -> a
+      | Just a -> a
+
+// Beispiele
+
+Maybe.withDefault 0 Nothing // = 0
+Maybe.withDefault 0 (Just 42) // = 42
+
+```
+
+:::notes
+
+- erkennt fehlende / doppelte cases
+
+:::
+
+---
+
+### in *C#*
+
+*Übersetzung* in Klassen
 
 ```csharp
-```
+public abstract class Maybe<T>
+{
+   public abstract Tres Match<Tres> (
+      Func<Tres> onNothing,
+      Func<T, Tres> onJust );
 
-</td></tr></table>
+   private Maybe() { }
+   public sealed class NothingCase : Maybe<T> { ... }
+   public sealed class JustCase : Maybe<T> { ... }
+}
+```
 
 :::notes
 
@@ -485,25 +522,92 @@ string PatternMatchRecords (Person person) =>
 
 ---
 
-## Typ-Inferenz
+### Beispiel
 
-<table><tr><td>
-
-```fsharp
-```
-
-</td><td>
+*Übersetzung* in Klassen
 
 ```csharp
-```
+public abstract class Maybe<T>
+{
+   public static Maybe<T> Just(T value) => new JustCase(value);
+   public static Maybe<T> Nothing => new NothingCase();
+}
 
-</td></tr></table>
+// Beipsiel
+var nothing = Maybe<int>.Nothing;
+var just42 = Maybe<int>.Just(42);
+```
 
 :::notes
 
 :::
 
 ---
+
+### NothingCase
+
+```csharp
+public sealed class NothingCase : Maybe<T>
+{
+   internal NothingCase() { }
+
+   public override Tres Match<Tres>(
+      Func<Tres> onNothing, 
+      Func<T, Tres> onJust)
+      => onNothing();
+}
+```
+
+:::notes
+
+:::
+
+---
+
+### JustCase
+
+```csharp
+public sealed class JustCase : Maybe<T>
+{
+   public T Value { get; init; }
+   internal JustCase(T value)
+   { Value = value; }
+
+   public override Tres Match<Tres>(
+      Func<Tres> onNothing, 
+      Func<T, Tres> onJust)
+      => onJust(Value);
+}
+```
+
+:::notes
+
+:::
+
+---
+
+### Pattern-Matching
+
+```csharp
+public abstract class Maybe<T>
+{
+   public T WithDefault(T defaultValue)
+      => Match(() => defaultValue, x => x);
+
+   public T WithDefault2(T defaultValue)
+      => this switch
+         {
+            JustCase j => j.Value,
+            NothingCase => defaultValue,
+            // sonst Warnung
+            _ => throw new InvalidOperationException()
+         };
+}
+```
+
+:::notes
+
+:::
 
 # Muster
 
@@ -549,6 +653,18 @@ string PatternMatchRecords (Person person) =>
 - in F# ... naja (Links)
 
 ---
+
+## Union-Types?
+
+[dotnet/csharplang/proposals/discriminated-unions](https://github.com/dotnet/csharplang/blob/main/proposals/discriminated-unions.md)
+
+```csharp
+enum class Maybe<T>
+{
+    Just(T value),
+    Nothing
+}
+```
 
 # Test
 

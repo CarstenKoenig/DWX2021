@@ -24,6 +24,12 @@ namespace CSharp
          Console.WriteLine(PatternMatchRecords(min));
          Console.WriteLine(PatternMatchRecords(max));
 
+         var nothing = Maybe<int>.Nothing;
+         var just42 = Maybe<int>.Just(42);
+
+         Console.WriteLine(nothing.WithDefault(0));
+         Console.WriteLine(just42.WithDefault2(0));
+
       }
 
       static string PatternMatchRecords (Records.Person person) =>
