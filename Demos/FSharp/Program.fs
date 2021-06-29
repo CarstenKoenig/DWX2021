@@ -12,4 +12,7 @@ let main argv =
     Console.WriteLine (Funktionen.add10'' 5)
     Funktionen.printNameExcl "DWX"
     Console.WriteLine (Funktionen.pipe)
+
+    Console.WriteLine(Records.patternMatch(Records.max))
+    Console.WriteLine(Records.patternMatch(Records.min))
     0 // return an integer exit code

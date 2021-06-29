@@ -291,9 +291,161 @@ int Pipe =
 
 :::
 
+# Typen
+
+:::notes
+
+- in FP wollen wir *immutable* / *value-types*
+- in C# *opt-in* über `readonly` / nur-Getter, `init` etc.
+- in F# ist das der Default (*opt-out* mit `mutable`)
+- Pattern-Matching ist immer ein Thema
+
+:::
 ---
 
-# Typen
+## Records
+
+<table><tr><td>
+
+```fsharp
+type Person =
+   {
+      FirstName : string
+      LastName : string
+   }
+
+let max =
+   {
+      FirstName = "Max"
+      LastName = "Mustermann"  
+   }
+```
+
+</td><td>
+
+```csharp
+public record Person(string FirstName, string LastName);
+
+public record Person2
+{
+  public string FirstName { get; init; }
+  public string LastName { get; init; }
+}
+
+var max = new Person("Max", "Mustermann");
+```
+
+</td></tr></table>
+
+:::notes
+
+- kein eigenes "Constraint" (sind `class`)
+- sind *immutable* (shallow)
+- Value equality (Vorsicht: der Typ selbst muss gleich sein Person1 /= Person2)
+- in F# gibt es noch annonyme Records
+- schönen "ToString" (build-in formatting for display)
+- kann von anderen Records "erben" (in F# geht sowas ähnliches über annonyme Records)
+
+:::
+
+---
+
+### Record-Update / nondestructive mutation
+
+<table><tr><td>
+
+```fsharp
+//  { FirstName = "Min"; LastName = "Mustermann" }
+let min =
+   { max with FirstName = "Min" }
+```
+
+</td><td>
+
+```csharp
+var min =
+   max with { FirstName = "Min" };
+```
+
+</td></tr></table>
+
+:::notes
+
+- erzeugt neuen Record mit gleichen Feldern auser den geänderten
+- copy mit `max with { }`
+
+:::
+
+---
+
+### Deconstruction
+
+<table><tr><td>
+
+```fsharp
+let { FirstName = fn; LastName = ln } = min
+```
+
+</td><td>
+
+```csharp
+min.Deconstruct(out var fn, out var ln);
+var (fn2, ln2) = min;
+```
+
+</td></tr></table>
+
+:::notes
+
+- Records implementieren autmatisch "Deconstruct" Methoden
+- die Funktionieren direkt mit Tupeln
+
+:::
+
+---
+
+### Pattern-Match
+
+<table><tr><td>
+
+```fsharp
+let patternMatch =
+   function
+   | { FirstName = "Min"; LastName = _ } -> 
+      "Hi Min"
+   | { LastName = "Mustermann" } -> 
+      "Hey a Mustermann"
+   | p -> 
+      $"Hello {p.FirstName}"
+```
+
+</td><td>
+
+```csharp
+string PatternMatchRecords (Person person) =>
+   person switch
+      {
+         (FirstName: "Min", LastName: _) => 
+            "Hi Min",
+         (_, "Mustermann") => 
+            "Hey a Mustermann",
+         Person p => 
+            $"Hello {p.FirstName}"
+      };
+```
+
+</td></tr></table>
+
+:::notes
+
+- F# erscheint logischer (nur Teile, keine Angabe von Person)
+- Unterstütz die neuen Vergleiche etc. von C# 9
+
+:::
+
+---
+
+## Tupel
 
 <table><tr><td>
 
@@ -309,32 +461,67 @@ int Pipe =
 
 :::notes
 
-- `Action<>` vs `Func<>`
-
 :::
----
-
-## Records
-
----
-
-## Immutability
-
----
-
-## Tupel
 
 ---
 
 ## Union Types
 
+<table><tr><td>
+
+```fsharp
+```
+
+</td><td>
+
+```csharp
+```
+
+</td></tr></table>
+
+:::notes
+
+:::
+
 ---
 
 ## Typ-Inferenz
 
+<table><tr><td>
+
+```fsharp
+```
+
+</td><td>
+
+```csharp
+```
+
+</td></tr></table>
+
+:::notes
+
+:::
+
 ---
 
 # Muster
+
+<table><tr><td>
+
+```fsharp
+```
+
+</td><td>
+
+```csharp
+```
+
+</td></tr></table>
+
+:::notes
+
+:::
 
 ---
 
@@ -355,6 +542,11 @@ int Pipe =
 ---
 
 ## Traits
+
+- C# "Static Abstract Interface Members"
+- Lambda Improvements
+- Patternmatching - List Patterns
+- in F# ... naja (Links)
 
 ---
 
