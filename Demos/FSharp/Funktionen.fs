@@ -36,3 +36,6 @@ let pipe =
    1
    |> add 2 
    |> add 3
+
+let inline srtpAdd a b =
+   a + b

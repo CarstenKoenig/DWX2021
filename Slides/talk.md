@@ -5,33 +5,15 @@ date: 01. Juli 2021
 github: https://github.com/CarstenKoenig/DWX2021
 ---
 
-# Funktionale Programmierung in _C#_
+### Funktionales *C#*
 
----
+oder
 
 ### Brauchen wir _F#_ überhaupt noch?
 
----
-
-### Was ist "funktionale Programmierung"
+# Was ist "funktionale Programmierung"
 
 (heute)
-
----
-
-### Once upon a time ...
-
-:::notes
-Geschichte der funktionalen Programmierung
-:::
-
-![Elm](../images/Elm.png)
-
-:::notes
-
-Agenda:
-
-:::
 
 # Agenda
 
@@ -269,6 +251,9 @@ let pipe =
    |> add 3
 ```
 
+
+---
+
 </td><td>
 
 ```csharp
@@ -291,6 +276,42 @@ int Pipe =
 - Deswegen auch nicht wirklich schlimm, dass Currying/Partial-Applikation nasty ist
 
 :::
+
+---
+
+## SRTP
+
+**Statically Resolved Type Parameters**
+
+[siehe Docs](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters)
+
+:::notes
+
+- werden beim Kompilieren mit den inferierten Typen ersetzt!
+- geht deswegen nur mit *inline*  Funktionen und können nicht mit Typen benutzt werden
+
+:::
+
+---
+
+### Beispiel
+
+```fsharp
+let inline srtpAdd a b =
+   a + b
+
+srtpAdd 1 2 // = 3 : int
+srtpAdd 1.0 2.0 // = 3.0 : double
+```
+
+Typ:
+
+```fsharp
+val inline srtpAdd :
+  a: ^a -> b: ^b ->  ^c
+    when ( ^a or  ^b) : (static member ( + ) :  ^a *  ^b ->  ^c)
+```
+
 
 # Typen
 
@@ -608,21 +629,11 @@ public abstract class Maybe<T>
 
 :::
 
-# Muster
-
-<table><tr><td>
-
-```fsharp
-```
-
-</td><td>
-
-```csharp
-```
-
-</td></tr></table>
+# Muster / Abstraktionen
 
 :::notes
+
+- Funktionale Abstraktionen (Monoid, Functor, Monaden, ...)
 
 :::
 
@@ -630,27 +641,47 @@ public abstract class Maybe<T>
 
 ## Funktor
 
-![](../images/Functor.png)
+`map : ('a -> 'b) -> F<'a> -> F<'b>`
 
 :::notes
 
 - Idee: *liften* eine Funktion in einen Kontext
-- Typparameter in positiver Position
 - in Scala: Mappable
+- für viele generische Typen möglich
+- mechanisch / kannonische Implementation möglich
 
 :::
 
 ---
 
-### Funktor (FP)
+### Gesetze
 
-`C = D` = alle Typen
+#### Identity
 
-`map : ('a -> 'b) -> F<'a> -> F<'b>`
+```fsharp
+map id = id
+```
+
+#### Composition
+
+```fsharp
+map (f << g) = map f << map g
+```
+
+---
+
+::: notes
+
+- kann beim Vereinfachen helfen
+
+:::
+
+![](../images/Functor.png)
 
 :::notes
 
-- Endo-Funktor
+- Kategorie-Theorie erklären
+- Endo Funktor
 
 :::
 
@@ -668,7 +699,26 @@ Result.map : ('a -> 'b) -> Result<'a,'err> -> Result<'b,'err>
 
 ```
 
+---
+
+#### SRTP
+
+möglich eine Abstraktion *Functor* in F# zu implementieren
+
+z.B. in [F# Plus](https://fsprojects.github.io/FSharpPlus/abstraction-functor.html)
+
+:::notes
+
+- Haskell und co: direktes Konzept
+- F# hat (ohne Libs) auch keine direkte Unterstützung
+
+:::
+
+---
+
 #### *C#*
+
+`map : ('a -> 'b) -> F<'a> -> F<'b>`
 
 ```csharp
 IEnumerable<tRes> Enumerable.Select<tSrc, tRes>(
@@ -676,22 +726,31 @@ IEnumerable<tRes> Enumerable.Select<tSrc, tRes>(
    Func<tSrc, tRes> selector)
 ```
 
+```csharp
+disposableObject?.Dispose();
+```
+
+```fsharp
+// in F# - IDisposable option -> unit
+// (iter = map >> ignore)
+disposableObject
+   |> Option.iter (fun obj -> obj.Dispose)
+```
+
 :::notes
 
-- Haskell und co: direktes Konzept
-- F# hat (ohne Libs) auch keine direkte Unterstützung
 - *nullable* - (?.) wie `|> Option.map` sogar nicer
 
 :::
 
 ---
 
-## M-Wort
+## Monade
 
 ```fsharp
 
 pure : 'a -> M<'a>
-bind : M<'a> -> ('a -> M<'b>) -> M<'b>
+bind (>>=) : M<'a> -> ('a -> M<'b>) -> M<'b>
 
 ```
 
@@ -704,6 +763,52 @@ bind : M<'a> -> ('a -> M<'b>) -> M<'b>
 - nicht komposierbar
 
 :::
+
+---
+
+### Gesetze
+
+#### Left identity
+
+```fsharp
+pure a >>= h = h a
+```
+
+#### Right identity
+
+```fsharp
+m >>= pure = m
+```
+
+#### Associativity
+
+```fsharp
+(m >>= g) >>= h = m >>= (fun x -> g x >>= h)
+```
+
+---
+
+#### *F#*
+
+```fsharp
+
+Seq.collect : (('a -> #seq<'c>) -> seq<'a> -> seq<'c>)
+List.collect : (('a -> 'b list) -> 'a list -> 'b list)
+Array.collect : (('a -> 'b []) -> 'a [] -> 'b [])
+Option.bind : (('a -> 'b option) -> 'a option -> 'b option)
+Result.bind : (('a -> Result<'b,'c>) -> Result<'a,'c> -> Result<'b,'c>)
+
+```
+
+---
+
+#### *C#*
+
+```csharp
+IEnumerable<TResult> SelectMany<TSource,TResult> (
+   IEnumerable<TSource> source, 
+   Func<TSource, IEnumerable<TResult>> selector )
+```
 
 ---
 
@@ -873,6 +978,8 @@ enum class Maybe<T>
     Nothing
 }
 ```
+
+# Fazit
 
 # Fragen?
 
