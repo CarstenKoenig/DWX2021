@@ -11,9 +11,17 @@ oder
 
 ### Brauchen wir _F#_ überhaupt noch?
 
-# Was ist "funktionale Programmierung"
+# Was ist FP
 
-(heute)
+:::notes
+
+- (reine) Funktionen als Building-Blocks
+- Expressions statt Statements
+- immutable Datenstrukturen
+- Trennung von Daten / Verhalten
+- keine Architektur (ist in F# sowieso ähnlich)
+
+:::
 
 # Agenda
 
@@ -105,7 +113,7 @@ Console.WriteLine(Funktionen.AddCurried(3)(5));
 
 - Brot & Butter - Technik
 - lasse `public static` weg
-- beachte Signatur F# (`int` default) - könnte durch verwendung von `add 5.0` geändert werden
+- beachte Signatur F# (`int` default) - könnte durch Verwendung von `add 5.0` geändert werden
 - kann `Func<int, Func<int,int>>` zugewiesen werden
 
 :::
@@ -233,7 +241,7 @@ Action<T2> PartialApply<T1,T2>(Action<T1,T2> f, T1 v1)
 - `Action<>` vs `Func<>`
 - in F# ist `unit` (~ `void`) ein Typ wie jeder andere
 - Überladung mit `Action` dann fällt `?` weg
-- Typparameter weiterhin nötig
+- Typ-Parameter weiterhin nötig
 
 :::
 
@@ -250,7 +258,6 @@ let pipe =
    |> add 2 
    |> add 3
 ```
-
 
 ---
 
@@ -271,7 +278,7 @@ int Pipe =
 
 :::notes
 
-- in F# läuft hier viel über partial-applikation
+- in F# läuft hier viel über partial-application
 - Über (Extension-)Methoden prima umsetzbar
 - Deswegen auch nicht wirklich schlimm, dass Currying/Partial-Applikation nasty ist
 
@@ -281,7 +288,7 @@ int Pipe =
 
 ## SRTP
 
-**Statically Resolved Type Parameters**
+### Statically Resolved Type Parameters
 
 [siehe Docs](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters)
 
@@ -312,7 +319,6 @@ val inline srtpAdd :
     when ( ^a or  ^b) : (static member ( + ) :  ^a *  ^b ->  ^c)
 ```
 
-
 # Typen
 
 :::notes
@@ -323,6 +329,7 @@ val inline srtpAdd :
 - Pattern-Matching ist immer ein Thema
 
 :::
+
 ---
 
 ## Records
@@ -364,9 +371,9 @@ var max = new Person("Max", "Mustermann");
 - kein eigenes "Constraint" (sind `class`)
 - sind *immutable* (shallow)
 - Value equality (Vorsicht: der Typ selbst muss gleich sein Person1 /= Person2)
-- in F# gibt es noch annonyme Records
+- in F# gibt es noch anonyme Records
 - schönen "ToString" (build-in formatting for display)
-- kann von anderen Records "erben" (in F# geht sowas ähnliches über annonyme Records)
+- kann von anderen Records "erben" (in F# geht so was ähnliches über anonyme Records)
 
 :::
 
@@ -393,7 +400,7 @@ var min =
 
 :::notes
 
-- erzeugt neuen Record mit gleichen Feldern auser den geänderten
+- erzeugt neuen Record mit gleichen Feldern außer den geänderten
 - copy mit `max with { }`
 
 :::
@@ -419,7 +426,7 @@ var (fn2, ln2) = min;
 
 :::notes
 
-- Records implementieren autmatisch "Deconstruct" Methoden
+- Records implementieren automatisch "Deconstruct" Methoden
 - die Funktionieren direkt mit Tupeln
 
 :::
@@ -459,7 +466,7 @@ string PatternMatchRecords (Records.Person person) =>
 
 :::notes
 
-- Unterstütz die neuen Vergleiche etc. von C# 9
+- Unterstützt die neuen Vergleiche etc. von C# 9
 
 :::
 
@@ -648,7 +655,7 @@ public abstract class Maybe<T>
 - Idee: *liften* eine Funktion in einen Kontext
 - in Scala: Mappable
 - für viele generische Typen möglich
-- mechanisch / kannonische Implementation möglich
+- mechanisch / kanonische Implementation möglich
 
 :::
 
@@ -681,7 +688,7 @@ map (f << g) = map f << map g
 :::notes
 
 - Kategorie-Theorie erklären
-- Endo Funktor
+- Endo-Funktor
 
 :::
 
