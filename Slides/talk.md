@@ -795,16 +795,70 @@ static class MaybeExtensions
 - F#: [F#+](https://github.com/fsprojects/FSharpPlus/)
 - C#: [Language-Ext](https://github.com/louthy/language-ext)
 
-# Zukunft
+# Ausblick
 
 ---
 
-## Traits
+## Links
 
-- C# "Static Abstract Interface Members"
-- Lambda Improvements
-- Patternmatching - List Patterns
-- in F# ... naja (Links)
+- [C# language proposals](https://github.com/dotnet/csharplang/tree/main/proposals)
+- [C# language design meetings](https://github.com/dotnet/csharplang/tree/main/meetings/)
+- [sharplab.io](https://sharplab.io/)
+
+---
+
+#### C# 10
+
+[Language Feature Status](https://github.com/dotnet/roslyn/blob/main/docs/Language%20Feature%20Status.md)
+
+![](../images/LangFeaturesStatus.png)
+
+---
+
+## statische abstrakte Member in Schnittstellen
+
+#### (Traits?)
+
+[Proposal](https://github.com/dotnet/csharplang/issues/4436)
+
+---
+
+#### Interface
+
+```csharp
+interface IMonoid<T> where T : IMonoid<T>
+{
+   static abstract T Zero { get; }
+   static abstract T operator +(T t1, T t2);
+}
+```
+
+---
+
+#### Benutzung
+
+```csharp
+T Mconcat<T>(IEnumerable<T> elements) where T: IMonoid<T>
+{
+   var result = T.Zero;
+   foreach (var el in elements) result += el;
+   return result;
+}
+```
+
+---
+
+#### Implementation
+
+```csharp
+record class IntMul(int Value) : IMonoid<IntMul>
+{
+   public static IntMul operator +(IntMul first, IntMul second)
+     => new(first.Value * second.Value);
+   public static IntMul Zero 
+     => new(1);
+}
+```
 
 ---
 
