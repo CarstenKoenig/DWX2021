@@ -5,37 +5,94 @@ date: 01. Juli 2021
 github: https://github.com/CarstenKoenig/DWX2021
 ---
 
-### Funktionales *C#*
+### Funktionales **C#**
 
 oder
 
-### Brauchen wir _F#_ überhaupt noch?
-
-# Was ist FP
+### Brauchen wir **F#** überhaupt noch?
 
 :::notes
 
-- (reine) Funktionen als Building-Blocks
-- Expressions statt Statements
-- immutable Datenstrukturen
-- Trennung von Daten / Verhalten
-- keine Architektur (ist in F# sowieso ähnlich)
+- .NET Entwickler - schon immer Affinität zu FP (Mathestudium?)
+- Biased: Haskell, PureScript, Elm und schon vor offiziellen Release F#
+- Workshops/Talks F# u. FP => über die Jahre viele Features auch in C# verfügbar
+- Spoiler: Ich schon
+- Geht nicht um Architektur (ist in F# sowieso ähnlich)
 
 :::
 
 # Agenda
 
+- Begriff FP
 - Funktionen
 - Datentypen
 - funktionale Muster
 - Ausblick
 - Fragen / Antworten
 
-# Funktionen
+# Was ist FP?
+
+:::notes
+
+- Gar nicht so einfach
+- Strenge Definition von "Du musst X damit Du FP machst" gibt es IMO nicht
+- Also für heute.
+
+:::
 
 ---
 
-## Definieren
+## reine Funktionen
+
+![](../images/Funktion.png)
+
+:::notes
+
+- jedes Eingabe genau eine Ausgabe
+- keine Seiteneffekte (beobachtbar)
+- Referentielle Transparenz (kann mit Wertetabelle ersetzt werden)
+- Warum: Einfach (Theorie), Testbar
+- Setzt weder F# noch C# durch.
+
+:::
+
+---
+
+## Expressions vs. Statements
+
+![](../images/ExpressionVsStatement.png)
+
+:::notes
+
+- Bevorzugen Expressions
+- Expression haben immer den gleichen Wert (können mit dem Wert ersetzt werden)
+- Beispiel Body von einer Funktion ist eine Expression - nicht eine Liste von einzelnen Statements.
+- Nein, setzt F# auch nicht durch.
+
+:::
+
+---
+
+## nicht-veränderliche Daten
+
+![](../images/mutation.jpg)
+
+:::notes
+
+- immutable Datenstrukturen
+- Trennung von Daten / Verhalten
+
+:::
+
+# Funktionen
+
+:::notes
+
+- Vergleich: wie kann man funktional mit Funktionen arbeiten in F#/C#?
+
+:::
+
+---
 
 <table><tr><td>
 
@@ -71,10 +128,10 @@ Console.WriteLine(Funktionen.Hallo("DWX"));
 
 :::notes
 
-- beachte Typ-Inferenz
 - Modul = statische Klasse
-- Expressions
 - C# OOP Entwickler vermutlich nicht glücklich
+- beachte Typ-Inferenz
+- Expressions
 
 :::
 
@@ -85,6 +142,11 @@ Console.WriteLine(Funktionen.Hallo("DWX"));
 <table><tr><td>
 
 ```fsharp
+
+// untypisch
+let addNotCurried (a,b) =
+   a + b
+
 // int -> int -> int
 let add a b = 
   a + b
@@ -139,7 +201,7 @@ add10 5 // = 15
 // Func<int,int> AddCurried(int a)
 
 Func<int, int> Add10
-  => AddCurried(10);
+  = AddCurried(10);
 
 Add10(5) // = 15
 ```
@@ -201,6 +263,7 @@ Func<int,int> Add10alt2
 - Higher-Order: Funktion als Rückgabe oder Argument
 - Beachte in F# ist das "das Selbe"
 - C# inferiert hier die Typ-Parameter **nicht**
+- Wenn wir das in C# brauchen: Lambda!
 
 :::
 
@@ -237,6 +300,7 @@ Action<T2> PartialApply<T1,T2>(Action<T1,T2> f, T1 v1)
 
 :::notes
 
+- oft HOFs mit "Seiteneffekten" -> void -> Action
 - beachte `?`
 - `Action<>` vs `Func<>`
 - in F# ist `unit` (~ `void`) ein Typ wie jeder andere
@@ -271,7 +335,9 @@ public class IntExtensions
 }
 
 int Pipe =
-  1.Add(2).Add(3);
+  1
+  .Add(2)
+  .Add(3);
 ```
 
 </td></tr></table>
@@ -281,6 +347,7 @@ int Pipe =
 - in F# läuft hier viel über partial-application
 - Über (Extension-)Methoden prima umsetzbar
 - Deswegen auch nicht wirklich schlimm, dass Currying/Partial-Applikation nasty ist
+- Fazit - deutlicher Unterschied
 
 :::
 
@@ -290,7 +357,10 @@ int Pipe =
 
 ### Statically Resolved Type Parameters
 
-[siehe Docs](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters)
+#### (F# only)
+
+siehe [SRTP](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters)
+und [Constraints](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/constraints)
 
 :::notes
 
@@ -319,7 +389,20 @@ val inline srtpAdd :
     when ( ^a or  ^b) : (static member ( + ) :  ^a *  ^b ->  ^c)
 ```
 
-# Typen
+---
+
+geht auch nicht-statisch
+
+```fsharp
+let inline trim (s : ^s when ^s : (member Trim : unit -> ^s)) =
+   (^s : (member Trim : unit -> ^s) s)
+
+trim "   Hallo    " // = "Hallo"
+```
+
+allerdings Typ-Inferenz hier schwierig
+
+# Datentypen
 
 :::notes
 
@@ -368,12 +451,12 @@ var max = new Person("Max", "Mustermann");
 
 :::notes
 
+- auch ein Beispiel für "UND" Typen
 - kein eigenes "Constraint" (sind `class`)
 - sind *immutable* (shallow)
 - Value equality (Vorsicht: der Typ selbst muss gleich sein Person1 /= Person2)
-- in F# gibt es noch anonyme Records
 - schönen "ToString" (build-in formatting for display)
-- kann von anderen Records "erben" (in F# geht so was ähnliches über anonyme Records)
+- in F# gibt es noch anonyme Records in C# vererbte Records
 
 :::
 
@@ -426,6 +509,8 @@ var (fn2, ln2) = min;
 
 :::notes
 
+- in C#: Methode `Deconstruct` -> zum *Auspacken* in Tupel
+- Funktioniert mit *Pattern Matching*
 - Records implementieren automatisch "Deconstruct" Methoden
 - die Funktionieren direkt mit Tupeln
 
@@ -473,6 +558,14 @@ string PatternMatchRecords (Records.Person person) =>
 ---
 
 ## Union Types
+
+:::notes
+
+- bisher immer **UND** (Tupel, Records)
+- was ist mit **Entweder/Oder**?
+- bisschen wie `Enum`
+
+:::
 
 ---
 
@@ -767,7 +860,6 @@ bind (>>=) : M<'a> -> ('a -> M<'b>) -> M<'b>
 - verallgemeinertes Pipeing
 - erlaubt Entscheidungen
 - viele Funktoren sind Monaden
-- nicht komposierbar
 
 :::
 

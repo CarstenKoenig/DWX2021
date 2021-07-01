@@ -39,3 +39,6 @@ let pipe =
 
 let inline srtpAdd a b =
    a + b
+
+let inline trim (s : ^s when ^s : (member Trim : unit -> ^s)) =
+   (^s : (member Trim : unit -> ^s) s)

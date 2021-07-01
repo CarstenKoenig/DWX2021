@@ -11,7 +11,7 @@ static class Funktionen
      => b => a + b;
 
    public static Func<int, int> Add10
-      => AddCurried(10);
+      = AddCurried(10);
 
    public static Func<int,int> Add10alt1
       => FunExtensions.PartialApply<int,int,int>(AddNotCurried, 10);
